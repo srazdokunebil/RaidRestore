@@ -1,0 +1,1429 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
+	<Script file="RaidRestore.lua"/>		
+
+	<!-- Minimap button -->
+	<Button name="RaidRestore_RaidSelect" frameStrata="MEDIUM" parent="Minimap" enableMouse="true" movable="true" hidden="true">
+		<Size>
+			<AbsDimension x="36" y="36"/>
+		</Size>
+		<Anchors>
+			<Anchor point="BOTTOMLEFT">
+				<Offset>
+					<AbsDimension x="-50" y="-50"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="RaidRestore_RaidSelectIcon" file="Interface\Icons\INV_Banner_02">
+					<Size>
+						<AbsDimension x="30" y="30"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="8" y="-8"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" setAllPoints="true">
+				<Texture file="Interface\Minimap\MiniMap-TrackingBorder">
+					<Size>
+						<AbsDimension x="75" y="75"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="0" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		
+		<Scripts>
+			<OnMouseDown>
+				if (arg1 == "LeftButton") then
+					this:StartMoving();
+				elseif (arg1 == "RightButton") then
+					if (IsShiftKeyDown()) then
+						ToggleDropDownMenu(1, nil, QuickAccess_FilterMenu, this:GetName(), -75, 15);
+					else
+						RaidMenuParentButton = nil;
+						ToggleDropDownMenu(1, nil, QuickAccess_RaidMenu, this:GetName(), -135, 15);
+					end
+				end
+			</OnMouseDown>
+			<OnMouseUp>
+				if (arg1 == "LeftButton") then
+					this:StopMovingOrSizing();
+				end
+			</OnMouseUp>
+			<OnShow>
+				RaidRestore.SetOption("SelectVisible", 1);
+			</OnShow>
+			<OnHide>
+				RaidRestore.SetOption("SelectVisible", 0);
+			</OnHide>
+		</Scripts>
+	</Button>
+
+	<!-- Player Button Template -->
+	<Button name="RaidRestore_ButtonBase" inherits="OptionsButtonTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="100" y="22"/>
+		</Size>
+		<Scripts>
+			<OnClick>
+				this:SetText("");
+			</OnClick>
+			<OnMouseDown>
+				if (arg1 == "RightButton") then
+					TypeMenuParentButton = this;
+					ToggleDropDownMenu(1, nil, RaidRestore_TypeMenu, this:GetName(), 0, 0);
+				end
+			</OnMouseDown>
+		</Scripts>
+	</Button>
+	
+	<!-- Player Name Template -->
+	<EditBox name="RaidRestore_EditBase" letters="1000" autoFocus="false" inherits="InputBoxTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="90" y="22"/>
+		</Size>
+		<FontString inherits="ChatFontNormal" font="Fonts\ARIALN.TTF">
+			<Color r="1" g="1" b="1"/>
+			<FontHeight>
+				<AbsValue val="14"/>
+			</FontHeight>
+		</FontString>
+		<Scripts>
+			<OnTabPressed>
+				local nCtrl = tonumber(string.sub(this:GetName(), 23)) + 1;
+				if (nCtrl > 40) then
+					nCtrl = 1;
+				end
+				getglobal("RaidRestore_PlayerName" .. nCtrl):SetFocus();
+			</OnTabPressed>
+		</Scripts>
+	</EditBox>
+	
+	<!-- New Template Frame -->
+	<Frame name="NewTemplate_MainFrame" toplevel="true" frameStrata="HIGH" movable="false" enableMouse="true" hidden="true" parent="RaidRestore_MainFrame">
+		<Size>
+			<AbsDimension x="200" y="100"/>
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER">
+				<Offset>
+					<AbsDimension x="0" y="120"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="12" right="12" top="12" bottom="12"/>
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="32" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="32" />
+			</EdgeSize>
+		</Backdrop>
+		
+		<Frames>
+			<EditBox name="NewTemplate_Name" letters="20" autoFocus="false" inherits="InputBoxTemplate">
+				<Size>
+					<AbsDimension x="90" y="22"/>
+				</Size>
+				<Anchors>
+					<Anchor point="CENTER">
+						<Offset>
+							<AbsDimension x="0" y="15"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</EditBox>
+				
+			<Button name="NewTemplate_Create" text="Create" inherits="OptionsButtonTemplate">
+				<Size>
+					<AbsDimension x="70" y="30"/>
+				</Size>
+				<Anchors>
+					<Anchor point="CENTER">
+						<Offset>
+							<AbsDimension x="-40" y="-15"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						AddTemplate(RaidRestore_MainFrame, NewTemplate_Name:GetText());
+						NewTemplate_MainFrame:Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+			<Button name="NewTemplate_Cancel" text="Cancel" inherits="OptionsButtonTemplate">
+				<Size>
+					<AbsDimension x="70" y="30"/>
+				</Size>
+				<Anchors>
+					<Anchor point="CENTER">
+						<Offset>
+							<AbsDimension x="40" y="-15"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						NewTemplate_MainFrame:Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+	</Frame>
+	
+	<!-- Quick Access Frame -->
+	<Frame name="QuickAccess_MainFrame" parent="UIParent" frameStrata="MEDIUM" movable="true" hidden="true">
+		<Size>
+			<AbsDimension x="186" y="65"/>
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER">
+				<Offset>
+					<AbsDimension x="0" y="-100"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" setAllPoints="true" tile="true">
+			<EdgeSize>
+				<AbsValue val="16"/>
+			</EdgeSize>
+			<TileSize>
+				<AbsValue val="16"/>
+			</TileSize>
+			<BackgroundInsets>
+				<AbsInset left="5" right="5" top="5" bottom="5"/>
+			</BackgroundInsets>
+		</Backdrop>
+		<Scripts>
+			<OnLoad>
+				QuickAccess_Raid1:SetTextColor(1.0, 1.0, 1.0, 1.0);
+				QuickAccess_Raid2:SetTextColor(1.0, 1.0, 1.0, 1.0);
+			</OnLoad>
+			<OnMouseDown>
+				if (arg1 == "LeftButton") then
+					this:StartMoving();
+				end
+			</OnMouseDown>
+			<OnMouseUp>
+				if (arg1 == "LeftButton") then
+					this:StopMovingOrSizing();
+				end
+			</OnMouseUp>
+			<OnShow>
+				RaidRestore.SetOption("ToggleVisible", 1);
+			</OnShow>
+			<OnHide>
+				RaidRestore.SetOption("ToggleVisible", 0);
+			</OnHide>
+		</Scripts>
+
+		<Frames>
+			<Frame name="QuickAccess_FilterMenu" inherits="UIDropDownMenuTemplate" id="1" hidden="false">
+				<Size>
+					<AbsDimension x="10" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP">
+						<Offset>
+							<AbsDimension x="70" y="10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						QuickAccess_FilterMenu_OnLoad();
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			
+			<Frame name="QuickAccess_RaidMenu" inherits="UIDropDownMenuTemplate" id="1" hidden="false">
+				<Size>
+					<AbsDimension x="10" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP">
+						<Offset>
+							<AbsDimension x="70" y="10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						QuickAccess_RaidMenu_OnLoad();
+					</OnLoad>
+				</Scripts>
+			</Frame>
+		
+			<Button name="QuickAccess_Raid1" inherits="OptionsButtonTemplate" hidden="false">
+				<Size>
+					<AbsDimension x="145" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="5" y="-7"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						RestoreRaid(this:GetText());
+					</OnClick>
+					<OnMouseDown>
+						if (arg1 == "RightButton") then
+							RaidMenuParentButton = this;
+							ToggleDropDownMenu(1, nil, QuickAccess_RaidMenu, this:GetName(), 0, 0);
+						end
+					</OnMouseDown>
+				</Scripts>
+			</Button>
+
+			<Button name="QuickAccess_Raid2" inherits="OptionsButtonTemplate" hidden="false">
+				<Size>
+					<AbsDimension x="145" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP" relativeTo="QuickAccess_Raid1" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension x="0" y="-2"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						RestoreRaid(this:GetText());
+					</OnClick>
+					<OnMouseDown>
+						if (arg1 == "RightButton") then
+							RaidMenuParentButton = this;
+							ToggleDropDownMenu(1, nil, QuickAccess_RaidMenu, this:GetName(), 0, 0);
+						end
+					</OnMouseDown>
+				</Scripts>
+			</Button>
+			
+			<Button name="QuickAccess_Exit" text="X" inherits="OptionsButtonTemplate">
+				<Size>
+					<AbsDimension x="24" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="QuickAccess_Raid1" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="2" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						QuickAccess_MainFrame:Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			<Button name="QuickAccess_Main" text=">>" inherits="OptionsButtonTemplate">
+				<Size>
+					<AbsDimension x="24" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="QuickAccess_Raid2" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="2" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						QuickAccess_MainFrame:Hide();
+						RaidRestore_MainFrame:Show();
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+	</Frame>
+	
+	<!-- Raid Restore Frame -->
+	<Frame name="RaidRestore_MainFrame" parent="UIParent" toplevel="true" frameStrata="MEDIUM" movable="true" hidden="true">
+		<Size>
+			<AbsDimension x="435" y="665"/>
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border"
+			tile="true">
+			<BackgroundInsets>
+				<AbsInset left="8" right="8" top="8" bottom="8"/>
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="32"/>
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="32"/>
+			</EdgeSize>
+		</Backdrop>
+		
+		<Scripts>
+			<OnLoad>
+				RaidRestore_OnLoad();
+			</OnLoad>
+			<OnEvent>
+				RaidRestore_OnEvent(event);
+			</OnEvent>
+			<OnMouseDown>
+				if (arg1 == "LeftButton") then
+					this:StartMoving();
+				end
+			</OnMouseDown>
+			<OnMouseUp>
+				if (arg1 == "LeftButton") then
+					this:StopMovingOrSizing();
+				end
+			</OnMouseUp>
+			<OnHide>
+				this:StopMovingOrSizing();
+			</OnHide>
+		</Scripts>
+
+		<Frames>
+			<!-- <><><><><><><><> -->
+			<!--     TYPE MENU    -->
+			<!-- <><><><><><><><> -->
+			<Frame name="RaidRestore_TypeMenu" inherits="UIDropDownMenuTemplate" id="1" hidden="false">
+				<Size>
+					<AbsDimension x="10" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP">
+						<Offset>
+							<AbsDimension x="70" y="10"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						RaidRestore_TypeMenu_OnLoad();
+					</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<!-- <><><><><><><><> -->
+			<!-- CONTROL BUTTONS  -->
+			<!-- <><><><><><><><> -->
+			<Frame name="RaidRestore_TemplateList" inherits="UIDropDownMenuTemplate" hidden="false">
+				<Size>
+					<AbsDimension x="145" y="22"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="135" y="-20"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						RaidRestore_TemplateList_OnLoad();
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			
+			<Frame name="RaidRestore_FilterList" inherits="UIDropDownMenuTemplate" hidden="false">
+				<Size>
+					<AbsDimension x="145" y="22"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_TemplateList" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension x="0" y="3"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						RaidRestore_FilterList_OnLoad();
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			
+			<Button name="RaidRestore_Add" text="+" inherits="OptionsButtonTemplate">
+				<Size>
+					<AbsDimension x="26" y="26"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_TemplateList" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="6" y="3"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						NewTemplate_Name:SetText(RaidRestore.GetOption("Filter") .. " ");
+						NewTemplate_MainFrame:Show();
+						NewTemplate_Name:SetFocus();
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+			<Button name="RaidRestore_Delete" text="-" inherits="OptionsButtonTemplate">
+				<Size>
+					<AbsDimension x="26" y="26"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_Add" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="3" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						DeleteTemplate(GetSelectedRaid());
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+			<Button name="RaidRestore_Exit" text="X" hidden="false" inherits="OptionsButtonTemplate">
+				<Size>
+					<AbsDimension x="25" y="25"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_Delete" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="50" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						NewTemplate_MainFrame:Hide();
+						RaidRestore_MainFrame:Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+			<CheckButton name="RaidRestore_SelectCheck" inherits="OptionsCheckButtonTemplate">
+				<Size>
+					<AbsDimension x="28" y="28"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="20" y="-21"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<HitRectInsets>
+					<AbsInset left="0" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				
+				<Scripts>
+					<OnClick>
+						if (this:GetChecked()) then
+							RaidRestore_RaidSelect:Show();
+						else
+							RaidRestore_RaidSelect:Hide();
+						end
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			
+			<CheckButton name="RaidRestore_ToggleCheck" inherits="OptionsCheckButtonTemplate">
+				<Size>
+					<AbsDimension x="28" y="28"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="20" y="-49"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<HitRectInsets>
+					<AbsInset left="0" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				
+				<Scripts>
+					<OnClick>
+						if (this:GetChecked()) then
+							QuickAccess_MainFrame:Show();
+						else
+							QuickAccess_MainFrame:Hide();
+						end
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+
+			<Button name="RaidRestore_Update" text="Update" inherits="OptionsButtonTemplate">
+				<Size>
+					<AbsDimension x="70" y="30"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="70" y="-85"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						UpdateTemplate(RaidRestore_MainFrame, GetSelectedRaid());
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+			<Button name="RaidRestore_CaptureName" text="Names" inherits="OptionsButtonTemplate">
+				<Size>
+					<AbsDimension x="70" y="30"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_Update" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						CaptureTemplate(RaidRestore_MainFrame, GetSelectedRaid(), RR_NAME);
+					</OnClick>
+					<OnMouseDown>
+						if (arg1 == "RightButton") then
+							ClearNames();
+						end
+					</OnMouseDown>
+				</Scripts>
+			</Button>
+			
+			<Button name="RaidRestore_CaptureClass" text="Classes" inherits="OptionsButtonTemplate">
+				<Size>
+					<AbsDimension x="70" y="30"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_CaptureName" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						CaptureTemplate(RaidRestore_MainFrame, GetSelectedRaid(), RR_CLASS);
+					</OnClick>
+					<OnMouseDown>
+						if (arg1 == "RightButton") then
+							ClearClasses();
+						end
+					</OnMouseDown>
+				</Scripts>
+			</Button>
+			
+			<Button name="RaidRestore_Normalize" text="Normalize" inherits="OptionsButtonTemplate">
+				<Size>
+					<AbsDimension x="70" y="30"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_CaptureClass" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="5" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						NormalizeTemplate(RaidRestore_MainFrame);
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+			<!-- <><><><><><><><> -->
+			<!-- GROUP 1 BUTTONS  -->
+			<!-- <><><><><><><><> -->
+			<Button name="RaidRestore_PlayerClass1" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="20" y="-140"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+
+			<EditBox name="RaidRestore_PlayerName1" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_PlayerClass1" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="4" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass2" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass1" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName2" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName1" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass3" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass2" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName3" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName2" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass4" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass3" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName4" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName3" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass5" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass4" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName5" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName4" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+
+			<!-- <><><><><><><><> -->
+			<!-- GROUP 2 BUTTONS  -->
+			<!-- <><><><><><><><> -->
+			<Button name="RaidRestore_PlayerClass6" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_PlayerClass1" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="100" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName6" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_PlayerClass6" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="4" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass7" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass6" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName7" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName6" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass8" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass7" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName8" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName7" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass9" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass8" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName9" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName8" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass10" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass9" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName10" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName9" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+
+			<!-- <><><><><><><><> -->
+			<!-- GROUP 3 BUTTONS  -->
+			<!-- <><><><><><><><> -->
+			<Button name="RaidRestore_PlayerClass11" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass1" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension x="0" y="-110"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName11" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_PlayerClass11" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="4" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass12" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass11" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName12" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName11" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass13" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass12" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName13" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName12" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass14" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass13" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName14" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName13" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass15" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass14" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName15" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName14" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+
+			<!-- <><><><><><><><> -->
+			<!-- GROUP 4 BUTTONS  -->
+			<!-- <><><><><><><><> -->
+			<Button name="RaidRestore_PlayerClass16" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_PlayerClass11" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="100" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName16" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_PlayerClass16" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="4" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass17" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass16" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName17" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName16" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass18" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass17" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName18" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName17" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass19" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass18" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName19" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName18" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass20" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass19" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName20" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName19" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+
+			<!-- <><><><><><><><> -->
+			<!-- GROUP 5 BUTTONS  -->
+			<!-- <><><><><><><><> -->
+			<Button name="RaidRestore_PlayerClass21" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass11" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension x="0" y="-110"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName21" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_PlayerClass21" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="4" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass22" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass21" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName22" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName21" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass23" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass22" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName23" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName22" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass24" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass23" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName24" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName23" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass25" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass24" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName25" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName24" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+
+			<!-- <><><><><><><><> -->
+			<!-- GROUP 6 BUTTONS  -->
+			<!-- <><><><><><><><> -->
+			<Button name="RaidRestore_PlayerClass26" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_PlayerClass21" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="100" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName26" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_PlayerClass26" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="4" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass27" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass26" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName27" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName26" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass28" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass27" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName28" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName27" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass29" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass28" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName29" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName28" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass30" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass29" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName30" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName29" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+
+			<!-- <><><><><><><><> -->
+			<!-- GROUP 7 BUTTONS  -->
+			<!-- <><><><><><><><> -->
+			<Button name="RaidRestore_PlayerClass31" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass21" relativePoint="BOTTOM">
+						<Offset>
+							<AbsDimension x="0" y="-110"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName31" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_PlayerClass31" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="4" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass32" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass31" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName32" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName31" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass33" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass32" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName33" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName32" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass34" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass33" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName34" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName33" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass35" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass34" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName35" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName34" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+
+			<!-- <><><><><><><><> -->
+			<!-- GROUP 8 BUTTONS  -->
+			<!-- <><><><><><><><> -->
+			<Button name="RaidRestore_PlayerClass36" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_PlayerClass31" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="100" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName36" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="RaidRestore_PlayerClass36" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="4" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass37" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass36" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName37" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName36" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass38" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass37" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName38" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName37" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass39" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass38" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName39" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName38" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+		
+			<Button name="RaidRestore_PlayerClass40" inherits="RaidRestore_ButtonBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerClass39" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</Button>
+			
+			<EditBox name="RaidRestore_PlayerName40" inherits="RaidRestore_EditBase">
+				<Anchors>
+					<Anchor point="TOP" relativeTo="RaidRestore_PlayerName39" relativePoint="BOTTOM">
+					</Anchor>
+				</Anchors>
+			</EditBox>
+			
+			<!-- <><><><><><><><> -->
+			<!-- ALL GROUP LABELS -->
+			<!-- <><><><><><><><> -->
+			<Frame name="RaidRestoreGroupTitles" toplevel="true" frameStrata="MEDIUM" hidden="false">
+				<Size>
+					<AbsDimension x="430" y="600"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="RaidRestore_TemplateLabel" text="Raid:" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="117" y="-27"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						
+						<FontString name="RaidRestore_FilterLabel" text="Filter:" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="113" y="-56"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						
+						<FontString name="RaidRestore_SelectLabel" text="Select" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="RaidRestore_SelectCheck" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="0" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						
+						<FontString name="RaidRestore_ToggleLabel" text="Toggle" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="RaidRestore_ToggleCheck" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="0" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						
+						<FontString name="RaidRestore_GroupTitle1" text="Group 1" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="BOTTOM" relativeTo="RaidRestore_PlayerClass1" relativePoint="TOP">
+									<Offset>
+										<AbsDimension x="0" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						
+						<FontString name="RaidRestore_GroupTitle2" text="Group 2" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="BOTTOM" relativeTo="RaidRestore_PlayerClass6" relativePoint="TOP">
+									<Offset>
+										<AbsDimension x="0" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+
+						<FontString name="RaidRestore_GroupTitle3" text="Group 3" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="BOTTOM" relativeTo="RaidRestore_PlayerClass11" relativePoint="TOP">
+									<Offset>
+										<AbsDimension x="0" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						
+						<FontString name="RaidRestore_GroupTitle4" text="Group 4" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="BOTTOM" relativeTo="RaidRestore_PlayerClass16" relativePoint="TOP">
+									<Offset>
+										<AbsDimension x="0" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+
+						<FontString name="RaidRestore_GroupTitle5" text="Group 5" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="BOTTOM" relativeTo="RaidRestore_PlayerClass21" relativePoint="TOP">
+									<Offset>
+										<AbsDimension x="0" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						
+						<FontString name="RaidRestore_GroupTitle6" text="Group 6" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="BOTTOM" relativeTo="RaidRestore_PlayerClass26" relativePoint="TOP">
+									<Offset>
+										<AbsDimension x="0" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+
+						<FontString name="RaidRestore_GroupTitle7" text="Group 7" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="BOTTOM" relativeTo="RaidRestore_PlayerClass31" relativePoint="TOP">
+									<Offset>
+										<AbsDimension x="0" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						
+						<FontString name="RaidRestore_GroupTitle8" text="Group 8" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="BOTTOM" relativeTo="RaidRestore_PlayerClass36" relativePoint="TOP">
+									<Offset>
+										<AbsDimension x="0" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>		
+				</Layers>
+			</Frame>
+		</Frames>
+	</Frame>
+</Ui>

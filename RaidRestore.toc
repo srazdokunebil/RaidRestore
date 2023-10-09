@@ -1,0 +1,4 @@
+## Interface: 11000
+## Title: RaidRestore
+## SavedVariables: SavedTemplates, RR_Options
+RaidRestore.xml
