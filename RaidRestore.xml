@@ -18,7 +18,7 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 			<Layer level="BACKGROUND">
 				<Texture name="RaidRestore_RaidSelectIcon" file="Interface\Icons\INV_Banner_02">
 					<Size>
-						<AbsDimension x="30" y="30"/>
+						<AbsDimension x="21" y="21"/>
 					</Size>
 					<Anchors>
 						<Anchor point="TOPLEFT">
@@ -32,7 +32,7 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 			<Layer level="OVERLAY" setAllPoints="true">
 				<Texture file="Interface\Minimap\MiniMap-TrackingBorder">
 					<Size>
-						<AbsDimension x="75" y="75"/>
+						<AbsDimension x="56" y="56"/>
 					</Size>
 					<Anchors>
 						<Anchor point="TOPLEFT">
@@ -46,6 +46,16 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 		</Layers>
 		
 		<Scripts>
+		    <OnEnter>
+                GameTooltip:SetOwner(this, "ANCHOR_LEFT");
+                GameTooltip:AddLine("Raid Restore v1.10");
+				GameTooltip:AddLine("Left click to open options", 1, 1, 1)
+				GameTooltip:AddLine("Right click to access quick select", 1, 1, 1)
+                GameTooltip:Show();
+            </OnEnter>
+            <OnLeave>
+                GameTooltip:Hide();
+            </OnLeave>
 			<OnMouseDown>
 				if (arg1 == "LeftButton") then
 					this:StartMoving();
