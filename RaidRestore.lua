@@ -1,4 +1,4 @@
-RR_VERSION = "Raid Restore v1.50";
+RR_VERSION = "Raid Restore v1.60";
 
 ---------------------
 -- Saved Variables --

@@ -44,7 +44,7 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 				</Texture>
 			</Layer>
 		</Layers>
-		
+		<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>	
 		<Scripts>
 		    <OnEnter>
                 GameTooltip:SetOwner(this, "ANCHOR_LEFT");
