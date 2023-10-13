@@ -48,9 +48,10 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 		<Scripts>
 		    <OnEnter>
                 GameTooltip:SetOwner(this, "ANCHOR_LEFT");
-                GameTooltip:AddLine("Raid Restore v1.10");
+                GameTooltip:AddLine(RR_VERSION);
 				GameTooltip:AddLine("Left click to open options", 1, 1, 1)
 				GameTooltip:AddLine("Right click to select groups", 1, 1, 1)
+				GameTooltip:AddLine("Shift + Left click to move minimap icon", 1, 1, 1)
 				GameTooltip:AddLine("Shift + Right click to access quick filters", 1, 1, 1)
                 GameTooltip:Show();
             </OnEnter>
@@ -58,8 +59,8 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
                 GameTooltip:Hide();
             </OnLeave>
 			<OnMouseDown>
-				if (arg1 == "LeftButton") then
-					this:StartMoving();
+				if ((arg1 == "LeftButton") and (IsShiftKeyDown())) then
+						this:StartMoving();
 				elseif (arg1 == "RightButton") then
 					if (IsShiftKeyDown()) then
 						ToggleDropDownMenu(1, nil, QuickAccess_FilterMenu, this:GetName(), -75, 15);
@@ -67,6 +68,7 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 						RaidMenuParentButton = nil;
 						ToggleDropDownMenu(1, nil, QuickAccess_RaidMenu, this:GetName(), -135, 15);
 					end
+				elseif (arg1 == "LeftButton") then RaidRestore.OnMinimapButtonClick();
 				end
 			</OnMouseDown>
 			<OnMouseUp>

@@ -1,4 +1,4 @@
-RR_VERSION = "Raid Restore v1.08";
+RR_VERSION = "Raid Restore v1.50";
 
 ---------------------
 -- Saved Variables --
@@ -44,7 +44,7 @@ RaidRestore.DefaultOptions = function()
 	end
 	
 	if (not RR_Options["ToggleVisible"]) then
-		RR_Options["ToggleVisible"] = 0;
+		RR_Options["ToggleVisible"] = 1;
 	end
 	
 	if (not RR_Options["SelectVisible"]) then
@@ -492,7 +492,7 @@ function RaidRestore_CommandHandler(msg)
 end
 
 function RaidRestore_OnLoad()
-	SLASH_RR1 = "/rr";
+	SLASH_RR1 = "/rrestore";
 	SlashCmdList["RR"] =
 		function(msg) RaidRestore_CommandHandler(msg);
 		end
@@ -930,3 +930,21 @@ function LoadTypeList()
 		UIDropDownMenu_AddButton(info);
 	end
 end
+
+
+function RaidRestore.OnMinimapButtonClick()
+	RaidRestore.ToggleOptions();
+end
+
+function RaidRestore.ToggleOptions()
+	local f = RaidRestore_MainFrame;
+	if(f:IsVisible()) then
+		f:Hide();
+	else
+		f:Show();
+	end
+end
+
+
+
+
