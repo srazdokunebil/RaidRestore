@@ -50,7 +50,8 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
                 GameTooltip:SetOwner(this, "ANCHOR_LEFT");
                 GameTooltip:AddLine("Raid Restore v1.10");
 				GameTooltip:AddLine("Left click to open options", 1, 1, 1)
-				GameTooltip:AddLine("Right click to access quick select", 1, 1, 1)
+				GameTooltip:AddLine("Right click to select groups", 1, 1, 1)
+				GameTooltip:AddLine("Shift + Right click to access quick filters", 1, 1, 1)
                 GameTooltip:Show();
             </OnEnter>
             <OnLeave>
